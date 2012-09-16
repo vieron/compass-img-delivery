@@ -31,7 +31,7 @@ To use img-delivery with your project, require the plugin from your Compass conf
 
 ## Functions
 
-There are some Sass::Script functions which can be used in your SASS:
+There are some Sass::Script functions which can be used in your SCSS:
 
 ### img_delivery
 

@@ -1,16 +1,17 @@
 require "rubygems"
 require "base64"
 
-# Functions are modified from Benjamin Doherty's first implementations: http://gist.github.com/377912
-# Modified to use the ChunkyPNG library rather than RMagick, and added flexibility to amend the path
-# to which generated PNGs are saved.
 
 module Compass::ImgDelivery
 
-    def log(msg)
-        unless msg return
+    def scss_rule(basename, mime_type, dat_uri)
+        rule = <<-SCSS
+          .#{basename.downcase} {
+            background-image: url("data:#{mime_type};base64,#{data_uri}");
+            background-repeat: no-repeat;
+          }
 
-        puts "img-delivery => #{msg}"
+        SCSS
     end
 
 end
@@ -18,12 +19,8 @@ end
 
 module Sass::Script::Functions
 
-    def hello
-        Sass::Script::String.new('red')
-    end
-
     def img_delivery(images_dir = '', css_dir = '', js_dir = '')
-        directory_path = Compass.configuration.images_path + "#{images_dir.value}/"
+        directory_path = Compass.configuration.images_path + "#{images_dir.value}"
         svg_scss_content = ""
         png_scss_content = ""
         fallback_scss_content = ""
@@ -41,6 +38,8 @@ module Sass::Script::Functions
               }
 
             SCSS
+
+            # svg_scss_content << scss_rule(basename, "image/svg+xml", svg_data_uri )
 
             png_scss_content << <<-SCSS
               .#{basename.downcase} {
@@ -61,7 +60,7 @@ module Sass::Script::Functions
 
             # svg2png command
             cmd = "svg2png #{file} #{outputfile}"
-            Compass::ImgDelivery.log "Writing #{outputfile}"
+            puts "Writing #{outputfile}"
 
             # exec shell command
             shell = %x[ #{cmd} ]
@@ -85,19 +84,19 @@ module Sass::Script::Functions
         end
 
         File.open(svg_scss_file, 'w') do |f|
-            Compass::ImgDelivery.log "Writing #{svg_scss_file}"
+            puts "Writing #{svg_scss_file}"
             f.write(svg_scss_content)
         end
 
         # create png.scss file
         File.open(png_scss_file, 'w') do |f|
-            Compass::ImgDelivery.log "Writing #{png_scss_file}"
+            puts "Writing #{png_scss_file}"
             f.write(png_scss_content)
         end
 
         # create fallback.scss file
         File.open(fallback_scss_file, 'w') do |f|
-            Compass::ImgDelivery.log "Writing #{fallback_scss_file}"
+            puts "Writing #{fallback_scss_file}"
             f.write(fallback_scss_content)
         end
 
@@ -113,7 +112,7 @@ module Sass::Script::Functions
         end
 
         File.open(js_file, 'w') do |f|
-            Compass::ImgDelivery.log "Writing #{js_file}"
+            puts "Writing #{js_file}"
             f.write(js_content)
         end
     end
