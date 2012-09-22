@@ -1,15 +1,74 @@
 # Compass Image Delivery
 
 Compass plugin for managing and delivering sharp vector images to all devices and browsers.
-I'm not reinventing the wheel, this an idea of Filament Group. Take a look at [Unicon](http://filamentgroup.com/lab/unicon/).
+I'm not reinventing the wheel, this is an idea of Filament Group. Take a look at [Unicon](http://filamentgroup.com/lab/unicon/).
 
-**What Unicon and Image Delivery do**
+**The usage differs a bit from Unicon**
 
-Basically they output 3 different CSS files:
+You should create a scss partial named ```_images.scss``` in the specified stylesheet directory. And here you can write all the css rules you want @extending the placeholder selectors who have the background declarations. For example:
 
- - All of the icons inline in the CSS as vector SVG data URLs,
- - All of the icons inline in the CSS as PNG data URLs,
- - All of the icons referenced externally as PNG images, which are automatically generated from the source SVG and placed in a directory alongside the CSS files.
+```
+/* _images.scss */
+
+.foo, .var:after {
+	@extend %arrow;
+}
+
+.logo {
+	@extend %logo;
+}
+```
+This assumes there are two images in the specified image directory, *arrow.svg* and *logo.svg*. 
+
+**The output after processing would be 3 different files like:**
+
+
+```
+/* images-svg.css */
+
+.foo, .var:after {
+	background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmN42NjkiLz4KPC9zdmc+Cg==");
+	background-repeat: no-repeat;
+}
+          
+.logo {
+	background-image: url("data:image/svg+xml;base64,PDjVuBliasbhUnlsnIhNjVsDNFnBH4wIiBlbm+Cg==");
+	background-repeat: no-repeat;
+}
+
+```
+
+```
+/* images-png.css */
+
+.foo, .var:after {
+	background-image: url("data:image/png;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmN42NjkiLz4KPC9zdmc+Cg==");
+	background-repeat: no-repeat;
+}
+          
+.logo {
+	background-image: url("data:image/png;base64,PDjVuBliasbhUnlsnIhNjVsDNFnBH4wIiBlbm+Cg==");
+	background-repeat: no-repeat;
+}
+
+```
+
+```
+/* images-fallback.css */
+
+.foo, .var:after {
+	background-image: url("/css_path/arrow.png");
+	background-repeat: no-repeat;
+}
+          
+.logo {
+	background-image: url("/css_path/logo.png");
+	background-repeat: no-repeat;
+}
+
+```
+
+
 
 ## Installation
 
@@ -29,18 +88,43 @@ To use img-delivery with your project, require the plugin from your Compass conf
 ```require "img-delivery"```
 
 
-## Functions
+- Call ```img_delivery``` sass function anywhere in your scss files to start using the extension.
 
-There are some Sass::Script functions which can be used in your SCSS:
+	```$images: img_delivery("/path/to/images/", "/path/to/stylesheets/file-basename", "/path/to/javascripts/file-basename");```
 
-### img_delivery
+- Create the ```_file-basename.scss``` (see stylesheets path above) partial in ```/path/to/stylesheets/``` and start coding your SCSS rules.
 
-```$images: img_delivery("/path/to/images/", "/path/to/stylesheets/and/file-basename", "/path/to/javascripts/and/file-basename");```
+	When running compass some files should automatically be created in ```/path/to/stylesheets/```:
+	
+	```
+	/* This files contains all the placeholder selectors 
+	 * mapping images in /path/to/images/svg/ and each one
+	 *  @import a different copy of _images.scss file. */	 	 
+	/path/to/stylesheets/file-basename-svg.css.scss
+	/path/to/stylesheets/file-basename-png.css.scss
+	/path/to/stylesheets/file-basename-fallback.css.scss	
+	
+	/* copies of original _images.scss partial */	
+	/path/to/stylesheets/.img-delivery/_file-basename-svg.scss  
+	/path/to/stylesheets/.img-delivery/_file-basename-png.scss
+	/path/to/stylesheets/.img-delivery/_file-basename-fallback.scss
+	```
+	
+	What file @imports what:
 
+	```
+	/path/to/stylesheets/file-basename-svg.css.scss
+		@import /path/to/stylesheets/.img-delivery/_file-basename-svg.scss
+	
+	/path/to/stylesheets/file-basename-png.css.scss
+		@import /path/to/stylesheets/.img-delivery/_file-basename-png.scss
+	
+	/path/to/stylesheets/file-basename-fallback.css.scss
+		@import /path/to/stylesheets/.img-delivery/_file-basename-fallback.scss
+	```
 
 ## TODO
 
-- Don't regenerate images if they didn't change
 - Improve code. DRY.
 - More Sass functions, return data-uris, png paths ...
 
