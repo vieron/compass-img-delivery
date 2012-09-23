@@ -69,7 +69,7 @@ module Sass::Script::Functions
             svg_data_uri = img2b64(file)
             svg_scss_content << scss_rule(basename, "image/svg+xml", svg_data_uri )
 
-            if !File.exists?(file)
+            if !File.exists?(outputfile)
                 # make png/ dir if not exists
                 mkdir_if_not_exists(outputfile)
                 # create png files with svg2png command
@@ -140,6 +140,8 @@ module Sass::Script::Functions
             puts 'Ups! There was an error:'
             puts e.inspect
         end
+
+        Sass::Script::String.new("")
     end
 
     def img2b64(file)
