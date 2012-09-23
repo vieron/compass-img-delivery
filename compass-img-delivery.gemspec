@@ -2,7 +2,7 @@ Gem::Specification.new do |s|
 
   # Gem Details
   s.name        = "compass-img-delivery"
-  s.version     = "0.0.2"
+  s.version     = "0.0.4"
   s.authors     = ["Javier Sánchez-Marín"]
   s.date        = "2012-09-16"
   s.summary     = %q{Compass plugin for managing and delivering sharp vector images to all devices and browsers.}
